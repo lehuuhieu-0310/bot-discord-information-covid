@@ -11,7 +11,7 @@ client.on('ready', () => {
 
 client.on('messageCreate', message => {
     if (message.content === 'covid') {
-        setInterval(async function sendMessage() {
+        setInterval(async () => {
             const data = await axios.get(process.env.API)
             const dataCovid = data.data.CovidVN
             message.channel.send(`
@@ -24,7 +24,6 @@ client.on('messageCreate', message => {
                 Nhiêm: ${dataCovid.Tong.nhiem}
                 Khỏi: ${dataCovid.Tong.khoi}
                 Tử vong: ${dataCovid.Tong.tuvong}`)
-            return sendMessage
-        }(), 86400000)
+        }, 86400000)
     }
 })

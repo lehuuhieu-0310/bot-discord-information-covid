@@ -25,6 +25,6 @@ client.on('messageCreate', message => {
                 Khỏi: ${dataCovid.Tong.khoi}
                 Tử vong: ${dataCovid.Tong.tuvong}`)
             return sendMessage
-        }, 86400000)
+        }(), 86400000)
     }
 })

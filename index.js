@@ -71,7 +71,7 @@ client.on('interactionCreate', async interaction => {
 client.on('messageCreate', async (message) => {
     if (message.content === '!covid') {
         message.reply('Scheduled Task')
-        schedule.scheduleJob({ tz: 'Asia/Bangkok', hour: 19 }, async () => {
+        schedule.scheduleJob('getInfoCovid', { tz: 'Asia/Bangkok', hour: 19 }, async () => {
             const data = await axios(process.env.API)
             const dataCovid = data.data.CovidVN
 
@@ -93,5 +93,12 @@ client.on('messageCreate', async (message) => {
 
             message.channel.send({ embeds: [embed] })
         })
+    } else if (message.content === '!cancel') {
+        let my_job = schedule.scheduledJobs['getInfoCovid']
+        if (my_job === undefined) {
+            return message.reply('Not Found Scheduled Task')
+        }
+        my_job.cancel()
+        message.reply('Cancel Scheduled Task')
     }
 })

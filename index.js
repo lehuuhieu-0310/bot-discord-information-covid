@@ -71,7 +71,7 @@ client.on('interactionCreate', async interaction => {
 client.on('messageCreate', async (message) => {
     if (message.content === '!covid') {
         message.reply('Scheduled Task')
-        schedule.scheduleJob('getInfoCovid', { tz: 'Asia/Bangkok', hour: 9, minute: 10 }, async () => {
+        schedule.scheduleJob('getInfoCovid', { tz: 'Asia/Bangkok', hour: 19, minute: 0 }, async () => {
             const data = await axios(process.env.API)
             const dataCovid = data.data.CovidVN
 

@@ -69,7 +69,7 @@ client.on('interactionCreate', async interaction => {
 })
 
 client.on('messageCreate', async (message) => {
-    let task = cron.schedule('* * * * *', async () => {
+    let task = cron.schedule('0 19 * * *', async () => {
         const data = await axios(process.env.API)
         const dataCovid = data.data.CovidVN
         const embed = new MessageEmbed()

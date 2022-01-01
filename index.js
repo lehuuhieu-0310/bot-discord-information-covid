@@ -1,6 +1,6 @@
 const { Client, Intents, MessageEmbed } = require('discord.js')
 const axios = require('axios').default
-const schedule = require('node-schedule')
+const cron = require('node-cron')
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
 require('dotenv').config()
@@ -69,36 +69,35 @@ client.on('interactionCreate', async interaction => {
 })
 
 client.on('messageCreate', async (message) => {
+    let task = cron.schedule('* * * * *', async () => {
+        const data = await axios(process.env.API)
+        const dataCovid = data.data.CovidVN
+        const embed = new MessageEmbed()
+            .setColor('#F1B199')
+            .setTitle(`Covid-19 tại Việt Nam: ${dataCovid.CapNhat}`)
+            .setDescription(`
+            - Hôm nay: 
+                Nhiễm: ${dataCovid.HomNay.nhiem}
+                Khỏi: ${dataCovid.HomNay.khoi}
+                Tử vong: ${dataCovid.HomNay.tuvong}
+            - Tổng:
+                Nhiêm: ${dataCovid.Tong.nhiem}
+                Khỏi: ${dataCovid.Tong.khoi}
+                Tử vong: ${dataCovid.Tong.tuvong}
+        `)
+            .setTimestamp()
+            .setFooter('Data is crawl from vnexpress.vn')
+        message.channel.send({ embeds: [embed] })
+    }, {
+        scheduled: false,
+        timezone: 'Asia/Ho_Chi_Minh'
+    })
+
     if (message.content === '!covid') {
+        task.start()
         message.reply('Scheduled Task')
-        schedule.scheduleJob('getInfoCovid', { tz: 'Asia/Bangkok', rule: '0 0 19 * * *' }, async () => {
-            const data = await axios(process.env.API)
-            const dataCovid = data.data.CovidVN
-
-            const embed = new MessageEmbed()
-                .setColor('#F1B199')
-                .setTitle(`Covid-19 tại Việt Nam: ${dataCovid.CapNhat}`)
-                .setDescription(`
-                - Hôm nay: 
-                    Nhiễm: ${dataCovid.HomNay.nhiem}
-                    Khỏi: ${dataCovid.HomNay.khoi}
-                    Tử vong: ${dataCovid.HomNay.tuvong}
-                - Tổng:
-                    Nhiêm: ${dataCovid.Tong.nhiem}
-                    Khỏi: ${dataCovid.Tong.khoi}
-                    Tử vong: ${dataCovid.Tong.tuvong}
-            `)
-                .setTimestamp()
-                .setFooter('Data is crawl from vnexpress.vn')
-
-            message.channel.send({ embeds: [embed] })
-        })
     } else if (message.content === '!cancel') {
-        let my_job = schedule.scheduledJobs['getInfoCovid']
-        if (my_job === undefined) {
-            return message.reply('Not Found Scheduled Task')
-        }
-        my_job.cancel()
+        task.stop()
         message.reply('Cancel Scheduled Task')
     }
 })
